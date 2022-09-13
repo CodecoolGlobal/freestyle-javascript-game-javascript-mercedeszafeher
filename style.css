@@ -1,0 +1,19 @@
+body {
+    background-color: lightblue;
+}
+
+.grid {
+    background-color: lightcyan;
+    position: absolute;
+    height: 500px;
+    width: 670px;
+    margin: 20px;
+}
+
+.block {
+    position: absolute;
+    width: 100px;
+    height: 20px;
+    background-color: lightseagreen;
+    margin: 10px;
+}
