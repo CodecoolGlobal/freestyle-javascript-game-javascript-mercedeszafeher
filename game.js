@@ -26,6 +26,6 @@ function generateCoordinates(blocksPerRow, maxBlocks, leftSpace, rowHeight) {
         counter++;
     }
     return blockCoordinates;
-}
+
 
 }
