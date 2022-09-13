@@ -29,3 +29,14 @@ function generateCoordinates(blocksPerRow, maxBlocks, leftSpace, rowHeight) {
 
 
 }
+
+
+function placeBlocks(grid, blockCoordinates) {
+    for (let block of blockCoordinates) {
+        const blockElement = document.createElement('div');
+        blockElement.classList.add('block');
+        blockElement.style.left = block[0] + 'px';
+        blockElement.style.top = block[1] + 'px';
+        grid.appendChild(blockElement);
+    } 
+}
