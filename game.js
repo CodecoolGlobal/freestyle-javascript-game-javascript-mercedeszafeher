@@ -5,11 +5,15 @@ let leftSpace = 0;
 let rowHeight = 30;
 const boardWidth = 670;
 const boardHeight = 20;
-const blockWidth = 100;
+const blockWidth = 110;
 let userPosition = [280, 480];
 let ballPosition = [320, 460];
 
-let blockCoordinates = generateCoordinates(blocksPerRow, maxBlocks, leftSpace, rowHeight);
+let hour = 0;
+let minute = 0;
+let second = 0;
+
+let blockCoordinates = generateCoordinates();
 placeBlocks(grid, blockCoordinates);
 let user = placeUser(grid, userPosition);
 let ball = placeBall(grid, ballPosition);
@@ -17,7 +21,7 @@ document.addEventListener('keydown', event => moveUser(event));
 
 
 
-function generateCoordinates(blocksPerRow, maxBlocks, leftSpace, rowHeight) {
+function generateCoordinates() {
     let blockCoordinates = [];
     let counter = 0;
     while (counter < maxBlocks) {
@@ -31,23 +35,29 @@ function generateCoordinates(blocksPerRow, maxBlocks, leftSpace, rowHeight) {
         counter++;
     }
     return blockCoordinates;
-
-
 }
 
 
-function placeBlocks(grid, blockCoordinates) {
+function pickRandomColor() {
+    const colors = ['#78B07A', '#91B4E1', '#E1CE91', '#D691E1', '#CBE191'];
+    return colors[Math.floor(Math.random()*colors.length)];
+}
+
+
+function placeBlocks() {
     for (let block of blockCoordinates) {
         const blockElement = document.createElement('div');
+        let color = pickRandomColor();
         blockElement.classList.add('block');
         blockElement.style.left = block[0] + 'px';
         blockElement.style.top = block[1] + 'px';
+        blockElement.style.backgroundColor = color;
         grid.appendChild(blockElement);
     }
 }
 
 
-function placeUser(grid, userPosition) {
+function placeUser() {
     const user = document.createElement('div')
     user.classList.add('user')
     user.style.left = userPosition[0] + 'px';
@@ -58,7 +68,7 @@ function placeUser(grid, userPosition) {
 }
 
 
-function placeBall(grid, ballPosition) {
+function placeBall() {
     const ball = document.createElement('div')
     ball.style.left = ballPosition[0] + 'px';
     ball.style.top = ballPosition[1] + 'px';
@@ -69,17 +79,21 @@ function placeBall(grid, ballPosition) {
 
 
 function moveUser(event) {
+    if (document.getElementById('second').textContent == '00') {
+        setInterval(() => {timer();}, 1000);
+    }
+
     switch (event.key) {
         case 'ArrowLeft':
             if (userPosition[0] > 0) {
-                userPosition[0] -= 10
+                userPosition[0] -= 20
                 console.log(userPosition[0] > 0)
                 drawUser()   
         }
         break
         case 'ArrowRight':
             if (userPosition[0] < (boardWidth - blockWidth)) {
-                userPosition[0] += 10
+                userPosition[0] += 20
                 console.log(userPosition[0])
                 drawUser()   
         }
@@ -97,4 +111,26 @@ function drawUser() {
 function drawBall() {
     ball.style.left = ballPosition[0] + 'px'
     ball.style.bottom = ballPosition[1] + 'px'
+}
+
+
+function timer() {
+    if (second == 60) {
+        second = 0;
+        minute++;
+    } else {
+        second++;
+    }
+    if (minute == 60) {
+        minute = 0;
+        hour++;
+    }
+    document.getElementById('hour').innerText = returnData(hour);
+    document.getElementById('minute').innerText = returnData(minute);
+    document.getElementById('second').innerText = returnData(second);
+}
+
+
+function returnData(input) {
+    return input > 9 ? input : `0${input}`
 }
