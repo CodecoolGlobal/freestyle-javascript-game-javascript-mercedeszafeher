@@ -5,7 +5,7 @@ const boardWidth = 670;
 const boardHeight = 500;
 const blockWidth = 100;
 const blockHeight = 20;
-
+let gameIsRunning = false;
 let userPosition = [280, 480];
 let ballPosition = [350, 460];
 
@@ -18,17 +18,17 @@ let y = -2;
 let score = 0;
 let ballId;
 let timerId;
+let ballSpeed = 15;
 
 let blockCoordinates = generateCoordinates();
-placeBlocks(grid, blockCoordinates);
-let user = placeUser(grid, userPosition);
-let ball = placeBall(grid, ballPosition);
+placeBlocks();
+let user = placeUser();
+let ball = placeBall();
 document.addEventListener('keydown', event => moveUser(event));
 
 
-function generateCoordinates() {
+function generateCoordinates(maxBlocks=18) {
     const blocksPerRow = 6;
-    const maxBlocks = 18;
     const rowHeight = 30;
     let leftSpace = 0;
     let blockCoordinates = [];
@@ -43,7 +43,6 @@ function generateCoordinates() {
         }
         counter++;
     }
-    console.log(blockCoordinates)
     return blockCoordinates;
 }
 
@@ -88,10 +87,27 @@ function placeBall() {
 }
 
 
+function increaseBallSpeed() {
+    if (score > 5) {
+        ballSpeed = 10;
+        clearInterval(ballId)
+        ballId = setInterval(moveBall, ballSpeed)
+    } else if (score > 10) {
+        ballSpeed = 5;
+        clearInterval(ballId)
+        ballId = setInterval(moveBall, ballSpeed)
+    }
+}
+
+
 function moveUser(event) {
-    if (document.getElementById('second').textContent == '00') {
+    increaseBallSpeed()
+
+
+    if (gameIsRunning == false) {
         timerId = setInterval(() => {timer();}, 1000);
-        ballId = setInterval(moveBall, 20)
+        ballId = setInterval(moveBall, ballSpeed)
+        gameIsRunning = true;
     }
 
     switch (event.key) {
@@ -102,7 +118,7 @@ function moveUser(event) {
         }
         break
         case 'ArrowRight':
-            if (userPosition[0] < (boardWidth - blockWidth)) {
+            if (userPosition[0] < (boardWidth - blockWidth - 20)) {
                 userPosition[0] += 20
                 drawUser()   
         }
@@ -149,12 +165,12 @@ function checkTheCollisions(){
             blockCoordinates.splice(i, 1)
             changeDirection()
             score++
-            // displayScore.innerHTML = String(score);
+            displayScore.innerHTML = String('Score: ' + score);
 
             // winning condition
             if (allBlocks.length == 0) 
             {
-                // displayScore.innerHTML = 'You Win!'
+                displayScore.innerHTML = 'You won!'
                 clearInterval(ballId)
                 clearInterval(timerId)
                 document.removeEventListener('keydown', event => moveUser(event));
@@ -163,7 +179,7 @@ function checkTheCollisions(){
     }
 
     // check for wall hits
-    if (ballPosition[0] >= (boardWidth - ballDiameter) || ballPosition[0] <= 0 || ballPosition[1] >= (boardHeight - ballDiameter))
+    if (ballPosition[0] >= (boardWidth - ballDiameter) || ballPosition[0] <= 0 || ballPosition[1] < 0)
     {
         changeDirection()
     }
@@ -181,7 +197,7 @@ function checkTheCollisions(){
     if(ballPosition[1] >= boardHeight - blockHeight){
         clearInterval(ballId)
         clearInterval(timerId)
-        // displayScore.innerHTML = 'You lose!'
+        displayScore.innerHTML = 'You lost!'
         document.removeEventListener('keydown', event => moveUser(event));
     }
 }
@@ -221,9 +237,31 @@ function timer() {
     document.getElementById('hour').innerText = returnData(hour);
     document.getElementById('minute').innerText = returnData(minute);
     document.getElementById('second').innerText = returnData(second);
+
+    if (second % 10 == 0) {
+        generateNewLine()
+    }
 }
 
 
 function returnData(input) {
     return input > 9 ? input : `0${input}`
+}
+
+
+function generateNewLine() {
+    let blocks = document.querySelectorAll('.block');
+    for (let block of blocks) {
+        let line = parseInt(block.style.top)
+        block.style.top = line + 30 + 'px';
+    }
+    let newLine = generateCoordinates(6);
+    placeBlocks(newLine)
+
+    for (let coordinate of blockCoordinates) {
+        coordinate[1] += 30;
+    }
+    blockCoordinates = newLine.concat(blockCoordinates)
+
+    console.log(blockCoordinates)
 }
