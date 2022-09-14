@@ -14,8 +14,10 @@ let minute = 0;
 let second = 0;
 
 let x = -2;
-let y = 2;
+let y = -2;
 let score = 0;
+let ballId;
+let timerId;
 
 let blockCoordinates = generateCoordinates();
 placeBlocks(grid, blockCoordinates);
@@ -88,21 +90,20 @@ function placeBall() {
 
 function moveUser(event) {
     if (document.getElementById('second').textContent == '00') {
-        setInterval(() => {timer();}, 1000);
+        timerId = setInterval(() => {timer();}, 1000);
+        ballId = setInterval(moveBall, 20)
     }
 
     switch (event.key) {
         case 'ArrowLeft':
             if (userPosition[0] > 0) {
                 userPosition[0] -= 20
-                console.log(userPosition[0] > 0)
                 drawUser()   
         }
         break
         case 'ArrowRight':
             if (userPosition[0] < (boardWidth - blockWidth)) {
                 userPosition[0] += 20
-                console.log(userPosition[0])
                 drawUser()   
         }
         break
@@ -112,7 +113,7 @@ function moveUser(event) {
 
 function drawUser() {
     user.style.left = userPosition[0] + 'px'
-    user.style.bottom = userPosition[1] + 'px'
+    user.style.top = userPosition[1] + 'px'
 }
   
 
@@ -128,7 +129,7 @@ function moveBall(){
     drawBall()
     checkTheCollisions()
 }
-time_id = setInterval(moveBall, 30)
+
 
 
 function checkTheCollisions(){
@@ -138,15 +139,14 @@ function checkTheCollisions(){
         let bottomLeft = [blockCoordinates[i][0], blockCoordinates[i][1] + 20];
         let bottomRight = [blockCoordinates[i][0] + 100, blockCoordinates[i][1] + 20];
         let topLeft = [blockCoordinates[i][0], blockCoordinates[i][1]];
-        let topRight = [blockCoordinates[i][0], blockCoordinates[i][1] + 100];
         if (
             (ballPosition[0] > bottomLeft[0] && ballPosition[0] < bottomRight[0]) &&
-            (ballPosition[1] < bottomLeft[1] && ballPosition[1] > topLeft[1]) 
+            ((ballPosition[1] - ballDiameter / 2) < bottomLeft[1] && ballPosition[1] > topLeft[1]) 
           )
           {
             const allBlocks = Array.from(document.querySelectorAll('.block'))
             allBlocks[i].classList.remove('block')
-            allBlocks.splice(i, 1)
+            blockCoordinates.splice(i, 1)
             changeDirection()
             score++
             // displayScore.innerHTML = String(score);
@@ -155,8 +155,9 @@ function checkTheCollisions(){
             if (allBlocks.length == 0) 
             {
                 // displayScore.innerHTML = 'You Win!'
-                clearInterval(time_id)
-                document.removeEventListener('keydown', moveUser)
+                clearInterval(ballId)
+                clearInterval(timerId)
+                document.removeEventListener('keydown', event => moveUser(event));
             }
         }
     }
@@ -169,36 +170,37 @@ function checkTheCollisions(){
 
     //check for user collision
     if (
-        (ballPosition[0] > userPosition[0]&& ballPosition[0] < userPosition[0] + blockWidth)&&
-        (ballPosition[1] < userPosition[1 ]&& ballPosition[1] > userPosition[1]+ blockHeight)
+        (ballPosition[0] > userPosition[0] && ballPosition[0] < userPosition[0] + blockWidth) &&
+        (ballPosition[1] < userPosition[1] && ballPosition[1] > userPosition[1] - blockHeight)
     )
     {
         changeDirection()
     }
 
     // game over
-    if(ballPosition[1] >= boardHeight){
-        clearInterval(time_id)
+    if(ballPosition[1] >= boardHeight - blockHeight){
+        clearInterval(ballId)
+        clearInterval(timerId)
         // displayScore.innerHTML = 'You lose!'
-        document.removeEventListener('keydown', moveUser)
+        document.removeEventListener('keydown', event => moveUser(event));
     }
 }
 
 
 function changeDirection() {
-  if (x == 2 && y == 2) {
-      y = -2
+  if (x == 2 && y == -2) {
+      y = 2
     return
   }
-  if (x == 2 && y== -2) {
+  if (x == 2 && y== 2) {
       x = -2
     return
   }
-  if (x == -2 && y == -2) {
-    y = 2
+  if (x == -2 && y == 2) {
+    y = -2
     return
   }
-  if (x == -2 && y == 2) {
+  if (x == -2 && y == -2) {
     x = 2
     return
   }
