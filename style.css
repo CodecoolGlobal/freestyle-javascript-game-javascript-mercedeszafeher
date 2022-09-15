@@ -1,7 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Rubik+Moonrocks&display=swap');
+
 body {
     background-image: url("/images/bubble1.jpg");
-    font-size: 28px;
-    font-family: Arial, Helvetica, sans-serif;
 }
 
 .grid {
@@ -34,10 +34,51 @@ body {
     width: 20px;
     height: 20px;
     border-radius: 10px;
-    background-color: blue;
-    content: "🍩";
 }
 
-.title {
-    font-family: r;
+.ball::before {
+    content: "🍩";
+    font-size: 40px;
+}
+
+#title {
+    text-align: center;
+    font-size: 64px;
+    font-family: 'Rubik Moonrocks', cursive;
+    color: cornsilk;
+    text-shadow: 5px 5px 5px steelblue;
+}
+
+#timer,
+#score {
+    font-family: 'Rubik Moonrocks', cursive;
+    color: cornsilk;
+    font-size: 26px;
+    text-shadow: 5px 5px 5px steelblue;
+}
+
+.button {
+    position: absolute;
+    right: 10px;
+    top: 5px;
+    background: steelblue;
+    border-radius: 999px;
+    box-shadow: #5E5DF0 0 10px 20px -10px;
+    box-sizing: border-box;
+    color: #FFFFFF;
+    cursor: pointer;
+    font-family: Inter,Helvetica,"Apple Color Emoji","Segoe UI Emoji",NotoColorEmoji,"Noto Color Emoji","Segoe UI Symbol","Android Emoji",EmojiSymbols,-apple-system,system-ui,"Segoe UI",Roboto,"Helvetica Neue","Noto Sans",sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 24px;
+    opacity: 1;
+    outline: 0 solid transparent;
+    padding: 8px 18px;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    width: fit-content;
+    word-break: break-word;
+    border: 0;
+
 }
