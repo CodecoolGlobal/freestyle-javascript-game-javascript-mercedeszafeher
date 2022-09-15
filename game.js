@@ -18,7 +18,7 @@ let y = -2;
 let score = 0;
 let ballId;
 let timerId;
-let ballSpeed = 15;
+let ballSpeed = 20;
 
 let blockCoordinates = generateCoordinates();
 placeBlocks();
@@ -88,22 +88,33 @@ function placeBall() {
 
 
 function increaseBallSpeed() {
-    if (score > 5) {
-        ballSpeed = 10;
-        clearInterval(ballId)
-        ballId = setInterval(moveBall, ballSpeed)
-    } else if (score > 10) {
-        ballSpeed = 5;
-        clearInterval(ballId)
-        ballId = setInterval(moveBall, ballSpeed)
+    switch (score) {
+        case 5:
+            ballSpeed = 17;
+            clearInterval(ballId)
+            ballId = setInterval(moveBall, ballSpeed)
+            break;
+        case 10:
+            ballSpeed = 14;
+            clearInterval(ballId)
+            ballId = setInterval(moveBall, ballSpeed)
+            break;
+        case 15:
+            ballSpeed = 11;
+            clearInterval(ballId)
+            ballId = setInterval(moveBall, ballSpeed)
+            break;
+        case 20:
+            ballSpeed = 8;
+            clearInterval(ballId)
+            ballId = setInterval(moveBall, ballSpeed)
+            break;
     }
 }
 
 
 function moveUser(event) {
     increaseBallSpeed()
-
-
     if (gameIsRunning == false) {
         timerId = setInterval(() => {timer();}, 1000);
         ballId = setInterval(moveBall, ballSpeed)
@@ -112,14 +123,14 @@ function moveUser(event) {
 
     switch (event.key) {
         case 'ArrowLeft':
-            if (userPosition[0] > 0) {
-                userPosition[0] -= 20
+            if (userPosition[0] > 5) {
+                userPosition[0] -= 25
                 drawUser()   
         }
         break
         case 'ArrowRight':
             if (userPosition[0] < (boardWidth - blockWidth - 20)) {
-                userPosition[0] += 20
+                userPosition[0] += 25
                 drawUser()   
         }
         break
@@ -168,11 +179,11 @@ function checkTheCollisions(){
             displayScore.innerHTML = String('Score: ' + score);
 
             // winning condition
-            if (allBlocks.length == 0) 
+            if (allBlocks.length <= 1)
             {
-                displayScore.innerHTML = 'You won!'
                 clearInterval(ballId)
                 clearInterval(timerId)
+                displayScore.innerHTML = 'You won!'
                 document.removeEventListener('keydown', event => moveUser(event));
             }
         }
@@ -190,7 +201,7 @@ function checkTheCollisions(){
         (ballPosition[1] < userPosition[1] && ballPosition[1] > userPosition[1] - blockHeight)
     )
     {
-        changeDirection()
+        changeDirection(true)
     }
 
     // game over
@@ -203,23 +214,36 @@ function checkTheCollisions(){
 }
 
 
-function changeDirection() {
-  if (x == 2 && y == -2) {
+function changeDirection(random=false) {
+  if (x > 0 && y < 0) {
       y = 2
     return
   }
-  if (x == 2 && y== 2) {
-      x = -2
+  if (x > 0 && y > 0) {
+    if (random == true) {
+        x = generateRandomNumber() * -1
+    } else {
+        x *= -1
+    }
     return
   }
-  if (x == -2 && y == 2) {
+  if (x < 0 && y > 0) {
     y = -2
     return
   }
-  if (x == -2 && y == -2) {
-    x = 2
+  if (x < 0 && y < 0) {
+    if (random == true) {
+        x = generateRandomNumber()
+    } else {
+        x *= -1
+    }
     return
   }
+}
+
+
+function generateRandomNumber() {
+    return Math.ceil(Math.random() * 6)
 }
 
 
@@ -238,7 +262,7 @@ function timer() {
     document.getElementById('minute').innerText = returnData(minute);
     document.getElementById('second').innerText = returnData(second);
 
-    if (second % 10 == 0) {
+    if (second % 30 == 0) {
         generateNewLine()
     }
 }
