@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Rubik+Moonrocks&display=swap');
 
 body {
-    background-image: url("/images/bubble1.jpg");
+    background-image: url("images/bubble1.jpg");
 }
 
 .grid {
