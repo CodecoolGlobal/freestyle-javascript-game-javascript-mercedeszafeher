@@ -250,18 +250,19 @@ function returnData(input) {
 
 
 function generateNewLine() {
-    let blocks = document.querySelectorAll('.block');
+    let blocks = Array.from(grid.childNodes);
+
     for (let block of blocks) {
-        let line = parseInt(block.style.top)
-        block.style.top = line + 30 + 'px';
+        if (block.classList != 'ball' && block.classList != 'user') {
+            block.remove();
+        } 
     }
-    let newLine = generateCoordinates(6);
-    placeBlocks(newLine)
 
     for (let coordinate of blockCoordinates) {
         coordinate[1] += 30;
     }
-    blockCoordinates = newLine.concat(blockCoordinates)
 
-    console.log(blockCoordinates)
+    let newLine = generateCoordinates(6);
+    blockCoordinates = newLine.concat(blockCoordinates)
+    placeBlocks();
 }
