@@ -1,7 +1,7 @@
 const moveUserFunction = (event) => moveUser(event);
 const scoreNode = document.querySelector('#score');
 const gridNode = document.querySelector('.grid');
-const ballDiameter = 20;
+const ballDiameter = 40;
 const boardWidth = 670;
 const boardHeight = 500;
 const blockWidth = 100;
@@ -14,7 +14,7 @@ const yCoordinate = 1;
 
 let gameIsRunning = false;
 let userPosition = [280, 480];
-let ballPosition = [350, 460];
+let ballPosition = [310, 440];
 let hour = 0;
 let minute = 0;
 let second = 0;
@@ -196,14 +196,14 @@ function checkTheCollisions(){
     //check for user collision
     if (
         (ballPosition[xCoordinate] > userPosition[xCoordinate] && ballPosition[xCoordinate] < userPosition[xCoordinate] + blockWidth) &&
-        (ballPosition[yCoordinate] < userPosition[yCoordinate] && ballPosition[yCoordinate] > userPosition[yCoordinate] - blockHeight)
+        (ballPosition[yCoordinate] < userPosition[yCoordinate] && ballPosition[yCoordinate] > userPosition[yCoordinate] - ballDiameter)
     )
     {
         changeDirection(true);
     }
 
     // game over
-    if(ballPosition[1] >= boardHeight - blockHeight){
+    if(ballPosition[1] >= boardHeight - ballDiameter){
         clearInterval(ballId);
         clearInterval(timerId);
         scoreNode.innerHTML = 'You lost!';

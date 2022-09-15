@@ -20,6 +20,7 @@ body {
     width: 110px;
     height: 20px;
     background-color: blueviolet;
+    border-radius: 5px;
 }
 
 .block {
@@ -27,6 +28,7 @@ body {
     width: 100px;
     height: 20px;
     margin: 10px;
+    border-radius: 10px;
 }
 
 .ball {
