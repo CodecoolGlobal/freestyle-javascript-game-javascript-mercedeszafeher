@@ -1,16 +1,22 @@
 const moveUserFunction = (event) => moveUser(event);
 const scoreNode = document.querySelector('#score');
 const gridNode = document.querySelector('.grid');
-const ballDiameter = 40;
-const boardWidth = 670;
-const boardHeight = 500;
-const blockWidth = 100;
-const blockHeight = 20;
-const gapWidth = 10;
-const rowHeight = 30;
-const blocksPerRow = 6;
-const xCoordinate = 0;
-const yCoordinate = 1;
+
+const gameConfiguration = Object.freeze({
+    ballDiameter: 40,
+    boardWidth: 670,
+    boardHeight: 500,
+    blockWidth: 100,
+    blockHeight: 20,
+    gapWidth: 10,
+    rowHeight: 30,
+    blocksPerRow: 6,
+    xIndexCoordinate: 0,
+    yIndexCoordinate: 1,
+    defaultMaxBlock: 18,
+    colors: ['#78B07A', '#91B4E1', '#E1CE91', '#D691E1', '#CBE191']
+})
+
 
 let gameIsRunning = false;
 let userPosition = [280, 480];
@@ -29,18 +35,17 @@ let blockCoordinates = generateCoordinates();
 let user = placeUser();
 let ball = placeBall();
 
-document.addEventListener('keydown', moveUserFunction);
-placeBlocks();
 
 
-function generateCoordinates(maxBlocks=18) {
+
+function generateCoordinates(maxBlocks = gameConfiguration.defaultMaxBlock) {
     let blockCoordinates = [];
     let leftSpace = 0;
     let counter = 0;
     while (counter < maxBlocks) {
-        let row = Math.floor(counter / blocksPerRow);
-        blockCoordinates.push([leftSpace, rowHeight * row]);
-        leftSpace = (counter % blocksPerRow) == 5 ? 0 : leftSpace + blockWidth + gapWidth;
+        let row = Math.floor(counter / gameConfiguration.blocksPerRow);
+        blockCoordinates.push([leftSpace, gameConfiguration.rowHeight * row]);
+        leftSpace = (counter % gameConfiguration.blocksPerRow) === 5 ? 0 : leftSpace + gameConfiguration.blockWidth + gameConfiguration.gapWidth;
         counter++;
     }
     return blockCoordinates;
@@ -48,8 +53,8 @@ function generateCoordinates(maxBlocks=18) {
 
 
 function pickRandomColor() {
-    const colors = ['#78B07A', '#91B4E1', '#E1CE91', '#D691E1', '#CBE191'];
-    return colors[Math.floor(Math.random()*colors.length)];
+
+    return gameConfiguration.colors[Math.floor(Math.random() * gameConfiguration.colors.length)];
 }
 
 
@@ -58,8 +63,8 @@ function placeBlocks() {
         const blockElement = document.createElement('div');
         let color = pickRandomColor();
         blockElement.classList.add('block');
-        blockElement.style.left = block[xCoordinate] + 'px';
-        blockElement.style.top = block[yCoordinate] + 'px';
+        blockElement.style.left = block[gameConfiguration.xIndexCoordinate] + 'px';
+        blockElement.style.top = block[gameConfiguration.yIndexCoordinate] + 'px';
         blockElement.style.backgroundColor = color;
         gridNode.appendChild(blockElement);
     }
@@ -69,8 +74,8 @@ function placeBlocks() {
 function placeUser() {
     const user = document.createElement('div');
     user.classList.add('user');
-    user.style.left = userPosition[xCoordinate] + 'px';
-    user.style.top = userPosition[yCoordinate] + 'px';
+    user.style.left = userPosition[gameConfiguration.xIndexCoordinate] + 'px';
+    user.style.top = userPosition[gameConfiguration.yIndexCoordinate] + 'px';
     gridNode.appendChild(user);
     return user;
 }
@@ -78,14 +83,14 @@ function placeUser() {
 
 function placeBall() {
     const ball = document.createElement('div');
-    ball.style.left = ballPosition[xCoordinate] + 'px';
-    ball.style.top = ballPosition[yCoordinate] + 'px';
+    ball.style.left = ballPosition[gameConfiguration.xIndexCoordinate] + 'px';
+    ball.style.top = ballPosition[gameConfiguration.yIndexCoordinate] + 'px';
     ball.classList.add('ball');
     gridNode.appendChild(ball);
     return ball;
 }
 
-
+// TODO : call it in the time func
 function increaseBallSpeed() {
     switch (score) {
         case 5:
@@ -113,97 +118,94 @@ function increaseBallSpeed() {
 
 
 function moveUser(event) {
-    increaseBallSpeed();
-    if (gameIsRunning == false) {
-        timerId = setInterval(() => {timer();}, 1000);
+    if (gameIsRunning === false) {
+        timerId = setInterval(() => { timer(); }, 1000);
         ballId = setInterval(moveBall, ballSpeed);
         gameIsRunning = true;
     }
 
     switch (event.key) {
         case 'ArrowLeft':
-            if (userPosition[xCoordinate] > 5) {
-                userPosition[xCoordinate] -= 25;
+            if (userPosition[gameConfiguration.xIndexCoordinate] > 5) {
+                userPosition[gameConfiguration.xIndexCoordinate] -= 25;
                 drawUser();
-        }
-        break
+            }
+            break
         case 'ArrowRight':
-            if (userPosition[xCoordinate] < (boardWidth - blockWidth - 20)) {
-                userPosition[xCoordinate] += 25;
+            if (userPosition[gameConfiguration.xIndexCoordinate] < (gameConfiguration.boardWidth - gameConfiguration.blockWidth - 20)) {
+                userPosition[gameConfiguration.xIndexCoordinate] += 25;
                 drawUser();
-        }
-        break
+            }
+            break
     }
 }
 
 
 function drawUser() {
-    user.style.left = userPosition[xCoordinate] + 'px';
-    user.style.top = userPosition[yCoordinate] + 'px';
+    user.style.left = userPosition[gameConfiguration.xIndexCoordinate] + 'px';
+    user.style.top = userPosition[gameConfiguration.yIndexCoordinate] + 'px';
 }
-  
+
 
 function drawBall() {
-    ball.style.left = ballPosition[xCoordinate] + 'px';
-    ball.style.top = ballPosition[yCoordinate] + 'px';
+    ball.style.left = ballPosition[gameConfiguration.xIndexCoordinate] + 'px';
+    ball.style.top = ballPosition[gameConfiguration.yIndexCoordinate] + 'px';
 }
 
 
-function moveBall(){
-    ballPosition[xCoordinate] += xMovement;
-    ballPosition[yCoordinate] += yMovement;
+function moveBall() {
+    ballPosition[gameConfiguration.xIndexCoordinate] += xMovement;
+    ballPosition[gameConfiguration.yIndexCoordinate] += yMovement;
     drawBall();
     checkTheCollisions();
 }
 
 
-function checkTheCollisions(){
+function checkTheCollisions() {
+
+
     //check for block collision
-    for(let index = 0; index < blockCoordinates.length ; index++ )
-    {
-        let bottomLeft = [blockCoordinates[index][xCoordinate], blockCoordinates[index][yCoordinate] + blockHeight];
-        let bottomRight = [blockCoordinates[index][xCoordinate] + blockWidth, blockCoordinates[index][yCoordinate] + blockHeight];
-        let topLeft = [blockCoordinates[index][xCoordinate], blockCoordinates[index][yCoordinate]];
+    for (let index = 0; index < blockCoordinates.length; index++) {
+        let bottomLeft = [blockCoordinates[index][gameConfiguration.xIndexCoordinate], blockCoordinates[index][gameConfiguration.yIndexCoordinate] + gameConfiguration.blockHeight];
+        let bottomRight = [blockCoordinates[index][gameConfiguration.xIndexCoordinate] + gameConfiguration.blockWidth, blockCoordinates[index][gameConfiguration.yIndexCoordinate] + gameConfiguration.blockHeight];
+        let topLeft = [blockCoordinates[index][gameConfiguration.xIndexCoordinate], blockCoordinates[index][gameConfiguration.yIndexCoordinate]];
         if (
-            (ballPosition[xCoordinate] > bottomLeft[xCoordinate] && ballPosition[xCoordinate] < bottomRight[xCoordinate]) &&
-            ((ballPosition[yCoordinate] - ballDiameter / 2) < bottomLeft[yCoordinate] && ballPosition[yCoordinate] > topLeft[yCoordinate]) 
-          )
-          {
-            const allBlocks = Array.from(document.querySelectorAll('.block'));
-            allBlocks[index].classList.remove('block');
-            blockCoordinates.splice(index, 1);
-            changeDirection();
-            score++;
-            scoreNode.innerHTML = String('Score: ' + score);
+            (ballPosition[gameConfiguration.xIndexCoordinate] > bottomLeft[gameConfiguration.xIndexCoordinate] && ballPosition[gameConfiguration.xIndexCoordinate] < bottomRight[gameConfiguration.xIndexCoordinate]) &&
+            ((ballPosition[gameConfiguration.yIndexCoordinate] - gameConfiguration.ballDiameter / 2) < bottomLeft[gameConfiguration.yIndexCoordinate] && ballPosition[gameConfiguration.yIndexCoordinate] > topLeft[gameConfiguration.yIndexCoordinate])
+        ) {
+            const allBlocks = addPlayerScore(index);
 
             // winning condition
-            if (allBlocks.length <= 1)
-            {
-                clearInterval(ballId);
-                clearInterval(timerId);
-                scoreNode.innerHTML = 'You won!';
-                document.removeEventListener('keydown', moveUserFunction);
-            }
+            checkPlayerWin(allBlocks);
         }
     }
 
     // check for wall hits
-    if (ballPosition[xCoordinate] >= (boardWidth - ballDiameter) || ballPosition[xCoordinate] <= 0 || ballPosition[yCoordinate] < 0)
-    {
-        changeDirection();
-    }
+    checkHitToWall();
 
     //check for user collision
-    if (
-        (ballPosition[xCoordinate] > userPosition[xCoordinate] && ballPosition[xCoordinate] < userPosition[xCoordinate] + blockWidth) &&
-        (ballPosition[yCoordinate] < userPosition[yCoordinate] && ballPosition[yCoordinate] > userPosition[yCoordinate] - ballDiameter)
-    )
-    {
-        changeDirection(true);
-    }
+    checkHitUser();
 
     // game over
-    if(ballPosition[1] >= boardHeight - ballDiameter){
+    checkGameOver();
+}
+
+
+function checkHitUser() {
+    if ((ballPosition[gameConfiguration.xIndexCoordinate] > userPosition[gameConfiguration.xIndexCoordinate] && ballPosition[gameConfiguration.xIndexCoordinate] < userPosition[gameConfiguration.xIndexCoordinate] + gameConfiguration.blockWidth) &&
+        (ballPosition[gameConfiguration.yIndexCoordinate] < userPosition[gameConfiguration.yIndexCoordinate] && ballPosition[gameConfiguration.yIndexCoordinate] > userPosition[gameConfiguration.yIndexCoordinate] - gameConfiguration.ballDiameter)) {
+        changeDirection(true);
+    }
+}
+
+function checkHitToWall() {
+    if (ballPosition[gameConfiguration.xIndexCoordinate] >= (gameConfiguration.boardWidth - gameConfiguration.ballDiameter) || ballPosition[gameConfiguration.xIndexCoordinate] <= 0 || ballPosition[gameConfiguration.yIndexCoordinate] < 0) {
+        changeDirection();
+    }
+}
+
+function checkGameOver() {
+    if (ballPosition[1] >= gameConfiguration.boardHeight - gameConfiguration.ballDiameter) {
         clearInterval(ballId);
         clearInterval(timerId);
         scoreNode.innerHTML = 'You lost!';
@@ -211,31 +213,50 @@ function checkTheCollisions(){
     }
 }
 
+function checkPlayerWin(allBlocks) {
+    if (allBlocks.length <= 1) {
+        clearInterval(ballId);
+        clearInterval(timerId);
+        scoreNode.innerHTML = 'You won!';
+        document.removeEventListener('keydown', moveUserFunction);
+    }
+}
 
-function changeDirection(random=false) {
+function addPlayerScore(index) {
+    const allBlocks = Array.from(document.querySelectorAll('.block'));
+    allBlocks[index].classList.remove('block');
+    blockCoordinates.splice(index, 1);
+    changeDirection();
+    score++;
+    increaseBallSpeed();
+    scoreNode.innerHTML = String('Score: ' + score);
+    return allBlocks;
+}
+
+function changeDirection(random = false) {
     if (xMovement > 0 && yMovement < 0) {
         yMovement = 2;
-        return;
+
     }
-    if (xMovement > 0 && yMovement > 0) {
-        if (random == true) {
+    else if (xMovement > 0 && yMovement > 0) {
+        if (random === true) {
             xMovement = generateRandomNumber() * -1;
         } else {
             xMovement *= -1;
         }
-        return;
+
     }
-    if (xMovement < 0 && yMovement > 0) {
+    else if (xMovement < 0 && yMovement > 0) {
         yMovement = -2;
-        return;
+
     }
-    if (xMovement < 0 && yMovement < 0) {
-        if (random == true) {
+    else {
+        if (random === true) {
             xMovement = generateRandomNumber();
         } else {
             xMovement *= -1;
         }
-        return;
+
     }
 }
 
@@ -245,26 +266,32 @@ function generateRandomNumber() {
 }
 
 
+const addOneSecond = () => second++;
 function timer() {
-    if (second == 60) {
-        second = 0;
-        minute++;
-    } else {
-        second++;
-    }
-    if (minute == 60) {
-        minute = 0;
-        hour++;
-    }
+
+    addOneSecond();
+    second === 60 && addOneMinute();
+    minute === 60 && addOneHour();
+
     document.getElementById('hour').innerText = returnData(hour);
     document.getElementById('minute').innerText = returnData(minute);
     document.getElementById('second').innerText = returnData(second);
 
-    if (second % 30 == 0) {
+    if (second % 30 === 0) {
         generateNewLine();
     }
 }
 
+
+function addOneHour() {
+    minute = 0;
+    hour++;
+}
+
+function addOneMinute() {
+    second = 0;
+    minute++;
+}
 
 function returnData(input) {
     let singleCharDigits = 9;
@@ -277,12 +304,16 @@ function generateNewLine() {
     for (let block of blocks) {
         if (block.classList != 'ball' && block.classList != 'user') {
             block.remove();
-        } 
+        }
     }
     for (let coordinate of blockCoordinates) {
-        coordinate[yCoordinate] += rowHeight;
+        coordinate[gameConfiguration.yIndexCoordinate] += gameConfiguration.rowHeight;
     }
-    let newLine = generateCoordinates(blocksPerRow);
+    let newLine = generateCoordinates(gameConfiguration.blocksPerRow);
     blockCoordinates = newLine.concat(blockCoordinates);
     placeBlocks();
 }
+
+
+document.addEventListener('keydown', moveUserFunction);
+placeBlocks();
