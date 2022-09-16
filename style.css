@@ -8,7 +8,7 @@ html {
     background-position: center center;
  }
 
-.board, .center {
+.board {
     height: 500px;
     width: 670px;
 }
@@ -99,5 +99,4 @@ html {
     width: fit-content;
     word-break: break-word;
     border: 0;
-
 }

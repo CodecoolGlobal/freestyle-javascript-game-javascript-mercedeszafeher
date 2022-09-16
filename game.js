@@ -15,6 +15,7 @@ const gameConfiguration = Object.freeze({
     IndexOfYCoordinate: 1,
     defaultMaxBlocks: 18,
     playerXMovement: 25,
+    maxRandomAngle: 4,
     colors: ['#78B07A', '#91B4E1', '#E1CE91', '#D691E1', '#CBE191']
 });
 
@@ -41,8 +42,10 @@ function initGame() {
     blockCoordinates = generateCoordinates();
     player = createPlayer();
     ball = createBall();
-    document.addEventListener('keydown', movePlayerFunction);
     createBlocks();
+    document.addEventListener('keydown', movePlayerFunction);
+    console.log('Game initialized. Welcome to the Breakout Game!')
+    console.log('A project by "Team Breakout" (Sanja, Mercedesz, Philipp)')
 }
 
 
@@ -63,7 +66,8 @@ function generateCoordinates(maxBlocks = gameConfiguration.defaultMaxBlocks) {
 
 // pick a random color for the blocks
 function pickRandomColor() {
-    return gameConfiguration.colors[Math.floor(Math.random() * gameConfiguration.colors.length)];
+    let index = generateRandomNumber(0, gameConfiguration.colors.length)
+    return gameConfiguration.colors[index];
 }
 
 
@@ -103,23 +107,9 @@ function createBall() {
 
 // increase the ball speed at a certain score
 function increaseBallSpeed() {
-    switch (score) {
-        case 5:
-            ballSpeed = 17;
-            ballId = changeIntervalDelay(ballId)
-            break;
-        case 10:
-            ballSpeed = 14;
-            ballId = changeIntervalDelay(ballId)
-            break;
-        case 15:
-            ballSpeed = 11;
-            ballId = changeIntervalDelay(ballId)
-            break;
-        case 20:
-            ballSpeed = 8;
-            ballId = changeIntervalDelay(ballId)
-            break;
+    if (score % 5 === 0 && ballSpeed > 5) {
+        ballSpeed -= 3;
+        ballId = changeIntervalDelay(ballId);
     }
 }
 
@@ -143,11 +133,11 @@ function startGame() {
 
 // move the player by pressing a key
 function movePlayer(event) {
-    startGame();
     switch (event.key) {
         case 'a':
         case 'A':
         case 'ArrowLeft':
+            startGame();
             if (playerPosition[gameConfiguration.IndexOfXCoordinate] > 5) {
                 playerPosition[gameConfiguration.IndexOfXCoordinate] -= gameConfiguration.playerXMovement;
                 alignElement(player, playerPosition);
@@ -156,6 +146,7 @@ function movePlayer(event) {
         case 'd':
         case 'D':
         case 'ArrowRight':
+            startGame();
             if (playerPosition[gameConfiguration.IndexOfXCoordinate] < (gameConfiguration.boardWidth - gameConfiguration.blockWidth - gameConfiguration.playerXMovement)) {
                 playerPosition[gameConfiguration.IndexOfXCoordinate] += gameConfiguration.playerXMovement;
                 alignElement(player, playerPosition);
@@ -173,7 +164,7 @@ function alignElement(element, elementPosition) {
 
 
 // move the ball on the board
-function moveBall(){
+function moveBall() {
     ballPosition[gameConfiguration.IndexOfXCoordinate] += ballXMovement;
     ballPosition[gameConfiguration.IndexOfYCoordinate] += ballYMovement;
     alignElement(ball, ballPosition);
@@ -182,7 +173,7 @@ function moveBall(){
 
 
 // check if the ball hits an element
-function checkForCollisions(){
+function checkForCollisions() {
     for (let index = 0; index < blockCoordinates.length ; index++ ) {
         if (hitBlock(index)) {
             const allBlocks = Array.from(document.querySelectorAll('.block'));
@@ -275,28 +266,30 @@ function displayMessage(text) {
 // change the direction of the ball
 function changeDirection(randomAngle = false) {
     if (ballXMovement > 0 && ballYMovement < 0) {
-        ballYMovement = 2;
+        ballYMovement *= -1;
     } else if (ballXMovement > 0 && ballYMovement > 0) {
-        ballXMovement = (randomAngle === true) ? generateRandomNumber() * -1 : ballXMovement * -1;
+        ballXMovement = (randomAngle === true) ? generateRandomNumber(1, gameConfiguration.maxRandomAngle) * -1 : ballXMovement * -1;
     } else if (ballXMovement < 0 && ballYMovement > 0) {
-        ballYMovement = -2;
+        ballYMovement *= -1;
     } else {
-        ballXMovement = (randomAngle === true) ? generateRandomNumber() : ballXMovement * -1;
+        ballXMovement = (randomAngle === true) ? generateRandomNumber(1, gameConfiguration.maxRandomAngle) : ballXMovement * -1;
     }
 }
 
 
-// generate a random number (for a random ball angle)
-function generateRandomNumber() {
-    return Math.ceil(Math.random() * gameConfiguration.blocksPerRow);
+// generate a random number (random ball angle/ block color)
+function generateRandomNumber(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min) + min);
 }
 
 
 // convert the time and display it on the board
 function timer() {
     const addOneSecond = () => second++;
-    const addOneHour = () => {minute = 0; hour++;}
-    const addOneMinute = () => {second = 0; minute++;}
+    const addOneHour = () => {minute = 0; hour++;};
+    const addOneMinute = () => {second = 0; minute++;};
 
     addOneSecond();
     if (second === 60) addOneMinute();
@@ -334,4 +327,4 @@ function generateNewRow() {
 }
 
 
-initGame()
+initGame();
