@@ -2,3 +2,5 @@ __pycache__/
 .idea/
 .vscode
 *.py[cod]
+**/.DS_Store
+.DS_Store

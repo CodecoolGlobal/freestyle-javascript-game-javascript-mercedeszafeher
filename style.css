@@ -2,22 +2,40 @@
 
 body {
     background-image: url("images/bubble1.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 
-.grid {
-    background-color: lightcyan;
-    position: absolute;
+.board, .center {
     height: 500px;
     width: 670px;
-    top: 50;
+}
+
+.board {
+    background-color: lightcyan;
+    position: absolute;
     left: 50%;
     margin-left:-335px;
     margin-top:200px;
 }
 
-.user {
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+.text-message {
+    line-height: 500px;
+    text-align: center;
+    font-size: 128px;
+    font-family: 'Rubik Moonrocks', cursive;
+    color: crimson;
+    animation: fadeIn 4s;
+}
+
+.player {
     position: absolute;
-    width: 110px;
+    width: 100px;
     height: 20px;
     background-color: blueviolet;
     border-radius: 5px;
@@ -33,13 +51,9 @@ body {
 
 .ball {
     position: absolute;
-    width: 20px;
-    height: 20px;
+    width: 40px;
+    height: 40px;
     border-radius: 10px;
-}
-
-.ball::before {
-    content: "🍩";
     font-size: 40px;
 }
 
