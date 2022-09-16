@@ -14,7 +14,7 @@ const gameConfiguration = Object.freeze({
     IndexOfXCoordinate: 0,
     IndexOfYCoordinate: 1,
     defaultMaxBlocks: 18,
-    playerMovement: 25,
+    playerXMovement: 25,
     colors: ['#78B07A', '#91B4E1', '#E1CE91', '#D691E1', '#CBE191']
 });
 
@@ -22,8 +22,8 @@ let gameIsRunning = false;
 let playerPosition = [280, 470];
 let ballPosition = [310, 430];
 let ballSpeed = 20;
-let xMovement = -2;
-let yMovement = -2;
+let ballXMovement = -2;
+let ballYMovement = -2;
 let second = 0;
 let minute = 0;
 let hour = 0;
@@ -149,15 +149,15 @@ function movePlayer(event) {
         case 'A':
         case 'ArrowLeft':
             if (playerPosition[gameConfiguration.IndexOfXCoordinate] > 5) {
-                playerPosition[gameConfiguration.IndexOfXCoordinate] -= gameConfiguration.playerMovement;
+                playerPosition[gameConfiguration.IndexOfXCoordinate] -= gameConfiguration.playerXMovement;
                 alignElement(player, playerPosition);
             }
             break;
         case 'd':
         case 'D':
         case 'ArrowRight':
-            if (playerPosition[gameConfiguration.IndexOfXCoordinate] < (gameConfiguration.boardWidth - gameConfiguration.blockWidth - gameConfiguration.playerMovement)) {
-                playerPosition[gameConfiguration.IndexOfXCoordinate] += gameConfiguration.playerMovement;
+            if (playerPosition[gameConfiguration.IndexOfXCoordinate] < (gameConfiguration.boardWidth - gameConfiguration.blockWidth - gameConfiguration.playerXMovement)) {
+                playerPosition[gameConfiguration.IndexOfXCoordinate] += gameConfiguration.playerXMovement;
                 alignElement(player, playerPosition);
             }
             break;
@@ -172,10 +172,10 @@ function alignElement(element, elementPosition) {
 }
 
 
-// move the ball on the board 
+// move the ball on the board
 function moveBall(){
-    ballPosition[gameConfiguration.IndexOfXCoordinate] += xMovement;
-    ballPosition[gameConfiguration.IndexOfYCoordinate] += yMovement;
+    ballPosition[gameConfiguration.IndexOfXCoordinate] += ballXMovement;
+    ballPosition[gameConfiguration.IndexOfYCoordinate] += ballYMovement;
     alignElement(ball, ballPosition);
     checkForCollisions();
 }
@@ -210,7 +210,7 @@ function hitBlock(index) {
     let bottomLeftCornerXPosition = blockCoordinates[index][gameConfiguration.IndexOfXCoordinate];
     let bottomLeftCornerYPosition = blockCoordinates[index][gameConfiguration.IndexOfYCoordinate] + gameConfiguration.blockHeight;
     let bottomRightCornerXPosition = blockCoordinates[index][gameConfiguration.IndexOfXCoordinate] + gameConfiguration.blockWidth;
-    
+
     return (ballXPosition > bottomLeftCornerXPosition && ballXPosition < bottomRightCornerXPosition) &&
            (ballYPosition > topLeftCornerYPosition && ballYPosition < bottomLeftCornerYPosition);
 }
@@ -274,14 +274,14 @@ function displayMessage(text) {
 
 // change the direction of the ball
 function changeDirection(randomAngle = false) {
-    if (xMovement > 0 && yMovement < 0) {
-        yMovement = 2;
-    } else if (xMovement > 0 && yMovement > 0) {
-        xMovement = (randomAngle === true) ? generateRandomNumber() * -1 : xMovement * -1;
-    } else if (xMovement < 0 && yMovement > 0) {
-        yMovement = -2;
+    if (ballXMovement > 0 && ballYMovement < 0) {
+        ballYMovement = 2;
+    } else if (ballXMovement > 0 && ballYMovement > 0) {
+        ballXMovement = (randomAngle === true) ? generateRandomNumber() * -1 : ballXMovement * -1;
+    } else if (ballXMovement < 0 && ballYMovement > 0) {
+        ballYMovement = -2;
     } else {
-        xMovement = (randomAngle === true) ? generateRandomNumber() : xMovement * -1;
+        ballXMovement = (randomAngle === true) ? generateRandomNumber() : ballXMovement * -1;
     }
 }
 
@@ -323,7 +323,7 @@ function generateNewRow() {
     for (let block of blocks) {
         if (block.className != 'ball' && block.className != 'player') {
             block.remove();
-        } 
+        }
     }
     for (let coordinate of blockCoordinates) {
         coordinate[gameConfiguration.IndexOfYCoordinate] += gameConfiguration.rowHeight;
