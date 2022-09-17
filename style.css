@@ -76,27 +76,42 @@ html {
     text-shadow: 5px 5px 5px steelblue;
 }
 
-.stop-button, .reset-button {
+.button {
     display: block;
     float: right;
     background: steelblue;
-    border-radius: 999px;
+    border-radius: 20px;
     box-shadow: #5E5DF0 0 10px 20px -10px;
     box-sizing: border-box;
-    color: cornsilk;
     cursor: pointer;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 16px;
-    font-weight: 700;
-    text-decoration: underline;
-    line-height: 24px;
     opacity: 1;
     outline: 0 solid transparent;
-    padding: 8px 18px;
     user-select: none;
     -webkit-user-select: none;
     touch-action: manipulation;
     width: fit-content;
     word-break: break-word;
     border: 0;
+    margin-left: 5px;
+}
+
+.pause-button, .reset-button {
+    color: cornsilk;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: underline;
+    line-height: 24px;
+    padding: 8px 18px;
+}
+
+.volume-button {
+    height: 40px;
+    width: 40px;
+}
+
+.center {
+    position: relative;
+    top: 5px;
+    left: 5px;
 }

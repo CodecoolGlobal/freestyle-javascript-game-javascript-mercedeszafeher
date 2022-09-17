@@ -1,37 +1,46 @@
 const movePlayerFunction = (event) => movePlayer(event);
 const scoreNode = document.querySelector('#score');
 const boardNode = document.querySelector('.board');
-const pauseButtonNode = document.querySelector('.stop-button');
+const pauseButtonNode = document.querySelector('.pause-button');
 const resetButtonNode = document.querySelector('.reset-button');
 const gameConfiguration = Object.freeze({
-    boardWidth: 670,
-    ballDiameter: 40,
-    ballRadius: 20,
-    boardHeight: 500,
-    blockWidth: 100,
-    blockHeight: 20,
-    gapWidth: 10,
-    rowHeight: 30,
-    blocksPerRow: 6,
+    gameIsRunning: false,
     IndexOfXCoordinate: 0,
     IndexOfYCoordinate: 1,
-    defaultMaxBlocks: 18,
-    playerXMovement: 25,
+    score: 0,
     maxRandomAngle: 4,
+    boardWidth: 670,
+    boardHeight: 500,
+    gapWidth: 10,
+    rowHeight: 30,
+    blockWidth: 100,
+    blockHeight: 20,
+    defaultMaxBlocks: 18,
+    blocksPerRow: 6,
+    playerPosition: [280, 470],
+    playerXMovement: 25,
+    ballPosition: [310, 430],
+    ballXMovement: -2,
+    ballYMovement: -2,
+    ballDiameter: 40,
+    ballRadius: 20,
+    ballSpeed: 20,
+    second: 0,
+    minute: 0,
+    hour: 0,
     colors: ['#78B07A', '#91B4E1', '#E1CE91', '#D691E1', '#CBE191']
 });
 
-let gameIsRunning = false;
-let playerPosition = [280, 470];
-let ballPosition = [310, 430];
-let ballSpeed = 20;
-let ballXMovement = -2;
-let ballYMovement = -2;
-let second = 0;
-let minute = 0;
-let hour = 0;
-let score = 0;
-
+let gameIsRunning;
+let playerPosition;
+let ballPosition;
+let ballSpeed;
+let ballXMovement;
+let ballYMovement;
+let second;
+let minute;
+let hour;
+let score;
 let blockCoordinates;
 let timerId;
 let ballId;
@@ -41,21 +50,22 @@ let ball;
 
 // website initialization
 function initPage() {
-    pauseButtonNode.addEventListener('click', () => resetGame(pauseOnly =  true));
-    resetButtonNode.addEventListener('click', () => resetGame(pauseOnly = false));
-    console.log('Game initialized. Welcome to the Breakout Game!');
-    console.log('A project by "Team Breakout" (Sanja, Mercedesz, Philipp)');
+    pauseButtonNode.addEventListener('click', () => resetOrPauseGame(pauseOnly =  true));
+    resetButtonNode.addEventListener('click', () => resetOrPauseGame(pauseOnly = false));
+    console.log('Welcome to the Breakout Game!');
+    console.log('A project by "Team Breakout"');
 }
 
 
 // game initialization
-function initGame(pauseOnly) {
-    if (pauseOnly === false) {
-        blockCoordinates = generateCoordinates();
-        player = createPlayer();
-        ball = createBall();
-        createBlocks();
-    }
+function initGame() {
+    setDefaultValues();
+    displayTime();
+    displayScore();
+    blockCoordinates = generateCoordinates();
+    player = createPlayer();
+    ball = createBall();
+    createBlocks();
     document.addEventListener('keydown', movePlayerFunction);
 }
 
@@ -81,22 +91,30 @@ function stopGame() {
 }
 
 
-// reset all game values
-function resetGame(pauseOnly) {
+// reset or pause the game
+function resetOrPauseGame(pauseOnly) {
     stopGame();
-    if (pauseOnly === false) {
+    if (pauseOnly === true) {
+        document.addEventListener('keydown', movePlayerFunction);
+    } else {
         removeElements(blocksOnly=false);
-        resetGameValues();
-        displayScore();
-        displayTime();
+        initGame(pauseOnly);
     }
-    initGame(pauseOnly);
 }
 
 
-// reset the game to the default values
-function resetGameValues() {
-    console.log('Values reset');
+// set or reset values of the game
+function setDefaultValues() {
+    gameIsRunning = gameConfiguration.gameIsRunning;
+    playerPosition = [...gameConfiguration.playerPosition];
+    ballPosition = [...gameConfiguration.ballPosition];
+    ballSpeed = gameConfiguration.ballSpeed;
+    ballXMovement = gameConfiguration.ballXMovement;
+    ballYMovement = gameConfiguration.ballYMovement;
+    second = gameConfiguration.second;
+    minute = gameConfiguration.minute;
+    hour = gameConfiguration.hour;
+    score = gameConfiguration.score;
 }
 
 
@@ -128,7 +146,7 @@ function generateNewRow() {
 }
 
 
-// generate a random number (random ball angle/ block color)
+// return a random number (random ball angle/ block color)
 function generateRandomNumber(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
@@ -136,7 +154,7 @@ function generateRandomNumber(min, max) {
 }
 
 
-// pick a random color for the blocks
+// return a random color for the blocks
 function pickRandomColor() {
     let index = generateRandomNumber(0, gameConfiguration.colors.length);
     return gameConfiguration.colors[index];
@@ -385,4 +403,4 @@ function displayMessage(text) {
 
 
 initPage();
-initGame(pauseOnly=false);
+initGame(pauseOnly = false);
