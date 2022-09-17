@@ -1,10 +1,10 @@
 const movePlayerFunction = (event) => movePlayer(event);
-const scoreNode = document.querySelector('#score');
+const scoreNode = document.querySelector('.score');
 const boardNode = document.querySelector('.board');
 const pauseButtonNode = document.querySelector('.pause-button');
 const resetButtonNode = document.querySelector('.reset-button');
+const soundButtonNode = document.querySelector('.sound-button');
 const gameConfiguration = Object.freeze({
-    gameIsRunning: false,
     IndexOfXCoordinate: 0,
     IndexOfYCoordinate: 1,
     score: 0,
@@ -31,16 +31,17 @@ const gameConfiguration = Object.freeze({
     colors: ['#78B07A', '#91B4E1', '#E1CE91', '#D691E1', '#CBE191']
 });
 
-let gameIsRunning;
+let gameIsRunning = false;
+let sound = true;
+let score;
 let playerPosition;
 let ballPosition;
-let ballSpeed;
 let ballXMovement;
 let ballYMovement;
+let ballSpeed;
 let second;
 let minute;
 let hour;
-let score;
 let blockCoordinates;
 let timerId;
 let ballId;
@@ -52,6 +53,7 @@ let ball;
 function initPage() {
     pauseButtonNode.addEventListener('click', () => resetOrPauseGame(pauseOnly =  true));
     resetButtonNode.addEventListener('click', () => resetOrPauseGame(pauseOnly = false));
+    soundButtonNode.addEventListener('click', toggleVolumeButton);
     console.log('Welcome to the Breakout Game!');
     console.log('A project by "Team Breakout"');
 }
@@ -105,7 +107,6 @@ function resetOrPauseGame(pauseOnly) {
 
 // set or reset values of the game
 function setDefaultValues() {
-    gameIsRunning = gameConfiguration.gameIsRunning;
     playerPosition = [...gameConfiguration.playerPosition];
     ballPosition = [...gameConfiguration.ballPosition];
     ballSpeed = gameConfiguration.ballSpeed;
@@ -399,6 +400,19 @@ function displayMessage(text) {
     message.classList.add('text-message');
     message.textContent = text;
     boardNode.appendChild(message);
+}
+
+
+function toggleVolumeButton() {
+    if (sound === true) {
+        console.log('Turn sound off...');
+        soundButtonNode.innerHTML = '<img src="images/sound_on.png" class="center" height="30px">';
+        sound = false;
+    } else {
+        console.log('Turn sound on...');
+        soundButtonNode.innerHTML = '<img src="images/sound_off.png" class="center" height="30px">';
+        sound = true;
+    }
 }
 
 
