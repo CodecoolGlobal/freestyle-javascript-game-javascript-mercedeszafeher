@@ -1,6 +1,8 @@
 const movePlayerFunction = (event) => movePlayer(event);
 const scoreNode = document.querySelector('#score');
 const boardNode = document.querySelector('.board');
+const pauseButtonNode = document.querySelector('.stop-button');
+const resetButtonNode = document.querySelector('.reset-button');
 const gameConfiguration = Object.freeze({
     boardWidth: 670,
     ballDiameter: 40,
@@ -37,15 +39,64 @@ let player;
 let ball;
 
 
+// website initialization
+function initPage() {
+    pauseButtonNode.addEventListener('click', () => resetGame(pauseOnly =  true));
+    resetButtonNode.addEventListener('click', () => resetGame(pauseOnly = false));
+    console.log('Game initialized. Welcome to the Breakout Game!');
+    console.log('A project by "Team Breakout" (Sanja, Mercedesz, Philipp)');
+}
+
+
 // game initialization
-function initGame() {
-    blockCoordinates = generateCoordinates();
-    player = createPlayer();
-    ball = createBall();
-    createBlocks();
+function initGame(pauseOnly) {
+    if (pauseOnly === false) {
+        blockCoordinates = generateCoordinates();
+        player = createPlayer();
+        ball = createBall();
+        createBlocks();
+    }
     document.addEventListener('keydown', movePlayerFunction);
-    console.log('Game initialized. Welcome to the Breakout Game!')
-    console.log('A project by "Team Breakout" (Sanja, Mercedesz, Philipp)')
+}
+
+
+// set the intervals on the first keypress
+function startGame() {
+    if (gameIsRunning === false) {
+        timerId = setInterval(timer, 1000);
+        ballId = setInterval(moveBall, ballSpeed);
+        gameIsRunning = true;
+    }
+}
+
+
+// stop the game
+function stopGame() {
+    if (gameIsRunning === true) {
+        clearInterval(ballId);
+        clearInterval(timerId);
+        document.removeEventListener('keydown', movePlayerFunction);
+        gameIsRunning = false;
+    }
+}
+
+
+// reset all game values
+function resetGame(pauseOnly) {
+    stopGame();
+    if (pauseOnly === false) {
+        removeElements(blocksOnly=false);
+        resetGameValues();
+        displayScore();
+        displayTime();
+    }
+    initGame(pauseOnly);
+}
+
+
+// reset the game to the default values
+function resetGameValues() {
+    console.log('Values reset');
 }
 
 
@@ -64,9 +115,30 @@ function generateCoordinates(maxBlocks = gameConfiguration.defaultMaxBlocks) {
 }
 
 
+// generate a new row of blocks
+function generateNewRow() {
+    const blocks = Array.from(boardNode.childNodes);
+    removeElements(blocksOnly=true);
+    for (let coordinate of blockCoordinates) {
+        coordinate[gameConfiguration.IndexOfYCoordinate] += gameConfiguration.rowHeight;
+    }
+    let newRow = generateCoordinates(gameConfiguration.blocksPerRow);
+    blockCoordinates = newRow.concat(blockCoordinates);
+    createBlocks();
+}
+
+
+// generate a random number (random ball angle/ block color)
+function generateRandomNumber(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min) + min);
+}
+
+
 // pick a random color for the blocks
 function pickRandomColor() {
-    let index = generateRandomNumber(0, gameConfiguration.colors.length)
+    let index = generateRandomNumber(0, gameConfiguration.colors.length);
     return gameConfiguration.colors[index];
 }
 
@@ -105,28 +177,15 @@ function createBall() {
 }
 
 
-// increase the ball speed at a certain score
-function increaseBallSpeed() {
-    if (score % 5 === 0 && ballSpeed > 5) {
-        ballSpeed -= 3;
-        ballId = changeIntervalDelay(ballId);
-    }
-}
-
-
-// change the delay of an interval
-function changeIntervalDelay(intervalId) {
-    clearInterval(intervalId);
-    return setInterval(moveBall, ballSpeed);
-}
-
-
-// set the intervals on the first keypress
-function startGame() {
-    if (gameIsRunning === false) {
-        timerId = setInterval(timer, 1000);
-        ballId = setInterval(moveBall, ballSpeed);
-        gameIsRunning = true;
+// remove the elements (blocks/ ball/ player) from the screen
+function removeElements(blocksOnly) {
+    const blocks = Array.from(boardNode.childNodes);
+    for (let block of blocks) {
+        if (blocksOnly === true) {
+            if (block.className != 'ball' && block.className != 'player') block.remove();
+        } else {
+            block.remove();
+        }
     }
 }
 
@@ -156,6 +215,36 @@ function movePlayer(event) {
 }
 
 
+// increase the ball speed at a certain score
+function increaseBallSpeed() {
+    if (score % 5 === 0 && ballSpeed > 5) {
+        ballSpeed -= 3;
+        ballId = changeIntervalDelay(ballId);
+    }
+}
+
+
+// change the delay of an interval
+function changeIntervalDelay(intervalId) {
+    clearInterval(intervalId);
+    return setInterval(moveBall, ballSpeed);
+}
+
+
+// change the direction of the ball
+function changeDirection(randomAngle = false) {
+    if (ballXMovement > 0 && ballYMovement < 0) {
+        ballYMovement *= -1;
+    } else if (ballXMovement > 0 && ballYMovement > 0) {
+        ballXMovement = (randomAngle === true) ? generateRandomNumber(1, gameConfiguration.maxRandomAngle) * -1 : ballXMovement * -1;
+    } else if (ballXMovement < 0 && ballYMovement > 0) {
+        ballYMovement *= -1;
+    } else {
+        ballXMovement = (randomAngle === true) ? generateRandomNumber(1, gameConfiguration.maxRandomAngle) : ballXMovement * -1;
+    }
+}
+
+
 // align an element on the board
 function alignElement(element, elementPosition) {
     element.style.left = elementPosition[gameConfiguration.IndexOfXCoordinate] + 'px';
@@ -180,7 +269,7 @@ function checkForCollisions() {
             allBlocks[index].classList.remove('block');
             blockCoordinates.splice(index, 1);
             score++;
-            scoreNode.textContent = String('Score: ' + score);
+            displayScore();
             checkIfPlayerWins(allBlocks);
             changeDirection();
             increaseBallSpeed();
@@ -234,10 +323,8 @@ function hitPlayer() {
 // the player wins (no more blocks left)
 function checkIfPlayerWins(allBlocks) {
     if (allBlocks.length <= 1) {
-        clearInterval(ballId);
-        clearInterval(timerId);
+        stopGame();
         displayMessage('You won!');
-        document.removeEventListener('keydown', movePlayerFunction);
     }
 }
 
@@ -246,11 +333,45 @@ function checkIfPlayerWins(allBlocks) {
 function checkIfPlayerLooses() {
     let ballYPosition = ballPosition[gameConfiguration.IndexOfYCoordinate] + gameConfiguration.ballDiameter;
     if (ballYPosition >= gameConfiguration.boardHeight) {
-        clearInterval(ballId);
-        clearInterval(timerId);
+        stopGame();
         displayMessage('You lost!');
-        document.removeEventListener('keydown', movePlayerFunction);
     }
+}
+
+
+// convert the time and add new rows every 30 seconds
+function timer() {
+    const addOneSecond = () => second++;
+    const addOneHour = () => {minute = 0; hour++;};
+    const addOneMinute = () => {second = 0; minute++;};
+
+    addOneSecond();
+    if (second === 60) addOneMinute();
+    if (minute === 60) addOneHour();
+
+    displayTime();
+
+    if (second % 30 === 0) generateNewRow();
+}
+
+
+// display formatted time on the board
+function displayTime() {
+    const singleCharDigits = 9;
+
+    let formattedHour = hour > singleCharDigits ? hour : `0${hour}`;
+    let formattedMinute = minute > singleCharDigits ? minute : `0${minute}`;
+    let formattedSecond = second > singleCharDigits ? second : `0${second}`;
+
+    document.getElementById('hour').textContent = formattedHour;
+    document.getElementById('minute').textContent = formattedMinute;
+    document.getElementById('second').textContent = formattedSecond;
+}
+
+
+// display score on the board
+function displayScore() {
+    scoreNode.textContent = String('Score: ' + score);
 }
 
 
@@ -263,68 +384,5 @@ function displayMessage(text) {
 }
 
 
-// change the direction of the ball
-function changeDirection(randomAngle = false) {
-    if (ballXMovement > 0 && ballYMovement < 0) {
-        ballYMovement *= -1;
-    } else if (ballXMovement > 0 && ballYMovement > 0) {
-        ballXMovement = (randomAngle === true) ? generateRandomNumber(1, gameConfiguration.maxRandomAngle) * -1 : ballXMovement * -1;
-    } else if (ballXMovement < 0 && ballYMovement > 0) {
-        ballYMovement *= -1;
-    } else {
-        ballXMovement = (randomAngle === true) ? generateRandomNumber(1, gameConfiguration.maxRandomAngle) : ballXMovement * -1;
-    }
-}
-
-
-// generate a random number (random ball angle/ block color)
-function generateRandomNumber(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min) + min);
-}
-
-
-// convert the time and display it on the board
-function timer() {
-    const addOneSecond = () => second++;
-    const addOneHour = () => {minute = 0; hour++;};
-    const addOneMinute = () => {second = 0; minute++;};
-
-    addOneSecond();
-    if (second === 60) addOneMinute();
-    if (minute === 60) addOneHour();
-
-    document.getElementById('hour').textContent = formatTime(hour);
-    document.getElementById('minute').textContent = formatTime(minute);
-    document.getElementById('second').textContent = formatTime(second);
-
-    if (second % 30 === 0) generateNewRow();
-}
-
-
-// add leading zero to single digit (0-9)
-function formatTime(input) {
-    const singleCharDigits = 9;
-    return input > singleCharDigits ? input : `0${input}`;
-}
-
-
-// generate a new row of blocks
-function generateNewRow() {
-    const blocks = Array.from(boardNode.childNodes);
-    for (let block of blocks) {
-        if (block.className != 'ball' && block.className != 'player') {
-            block.remove();
-        }
-    }
-    for (let coordinate of blockCoordinates) {
-        coordinate[gameConfiguration.IndexOfYCoordinate] += gameConfiguration.rowHeight;
-    }
-    let newRow = generateCoordinates(gameConfiguration.blocksPerRow);
-    blockCoordinates = newRow.concat(blockCoordinates);
-    createBlocks();
-}
-
-
-initGame();
+initPage();
+initGame(pauseOnly=false);
