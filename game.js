@@ -51,8 +51,7 @@ let ball;
 
 // website initialization
 function initPage() {
-    pauseButtonNode.addEventListener('click', () => resetOrPauseGame(pauseOnly =  true));
-    resetButtonNode.addEventListener('click', () => resetOrPauseGame(pauseOnly = false));
+    resetButtonNode.addEventListener('click', resetGame);
     soundButtonNode.addEventListener('click', toggleVolumeButton);
     console.log('Welcome to the Breakout Game!');
     console.log('A project by "Team Breakout"');
@@ -69,12 +68,14 @@ function initGame() {
     ball = createBall();
     createBlocks();
     document.addEventListener('keydown', movePlayerFunction);
+    pauseButtonNode.addEventListener('click', pauseOrResumeGame);
 }
 
 
 // set the intervals on the first keypress
 function startGame() {
     if (gameIsRunning === false) {
+        pauseButtonNode.innerHTML = '<img src="images/pause.png" class="center" height="30px">';
         timerId = setInterval(timer, 1000);
         ballId = setInterval(moveBall, ballSpeed);
         gameIsRunning = true;
@@ -85,23 +86,33 @@ function startGame() {
 // stop the game
 function stopGame() {
     if (gameIsRunning === true) {
+        pauseButtonNode.innerHTML = '<img src="images/play.png" class="center" height="30px">';
         clearInterval(ballId);
         clearInterval(timerId);
         document.removeEventListener('keydown', movePlayerFunction);
+        pauseButtonNode.removeEventListener('click', pauseOrResumeGame);
         gameIsRunning = false;
     }
 }
 
 
-// reset or pause the game
-function resetOrPauseGame(pauseOnly) {
-    stopGame();
-    if (pauseOnly === true) {
+// pause or resume the game
+function pauseOrResumeGame() {
+    if (gameIsRunning === true) {
+        stopGame();
         document.addEventListener('keydown', movePlayerFunction);
+        pauseButtonNode.addEventListener('click', pauseOrResumeGame);
     } else {
-        removeElements(blocksOnly=false);
-        initGame(pauseOnly);
+        startGame();
     }
+}
+
+
+// reset the game
+function resetGame() {
+    stopGame();
+    removeElements(blocksOnly=false);
+    initGame();
 }
 
 
@@ -251,7 +262,7 @@ function changeIntervalDelay(intervalId) {
 
 
 // change the direction of the ball
-function changeDirection(object, randomAngle = false) {
+function changeDirection(object) {
     playAudio('click');
     if (object === 'block') {
         ballYMovement *= -1;
@@ -301,7 +312,7 @@ function checkForCollisions() {
     }
 
     if (hitWall()) changeDirection(object = 'wall');
-    if (hitPlayer()) changeDirection(object = 'player', randomAngle = true);
+    if (hitPlayer()) changeDirection(object = 'player');
     checkIfPlayerLooses();
 }
 
@@ -408,6 +419,7 @@ function displayMessage(text) {
 }
 
 
+// play audio file
 function playAudio(file) {
     if (sound === true) {
         const audio = new Audio(`sounds/${file}.mp3`);
@@ -416,6 +428,7 @@ function playAudio(file) {
 }
 
 
+// turn sound on and off and change image on the page
 function toggleVolumeButton() {
     if (sound === true) {
         soundButtonNode.innerHTML = '<img src="images/sound_on.png" class="center" height="30px">';
