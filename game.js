@@ -251,15 +251,20 @@ function changeIntervalDelay(intervalId) {
 
 
 // change the direction of the ball
-function changeDirection(randomAngle = false) {
-    if (ballXMovement > 0 && ballYMovement < 0) {
+function changeDirection(object, randomAngle = false) {
+    playAudio('click');
+    if (object === 'block') {
         ballYMovement *= -1;
-    } else if (ballXMovement > 0 && ballYMovement > 0) {
-        ballXMovement = (randomAngle === true) ? generateRandomNumber(1, gameConfiguration.maxRandomAngle) * -1 : ballXMovement * -1;
-    } else if (ballXMovement < 0 && ballYMovement > 0) {
+    } else if (object === 'player' && ballXMovement > 0) {
+        ballXMovement = generateRandomNumber(1, gameConfiguration.maxRandomAngle);
         ballYMovement *= -1;
-    } else {
-        ballXMovement = (randomAngle === true) ? generateRandomNumber(1, gameConfiguration.maxRandomAngle) : ballXMovement * -1;
+    } else if (object === 'player' && ballXMovement < 0) {
+        ballXMovement = generateRandomNumber(1, gameConfiguration.maxRandomAngle) * -1;
+        ballYMovement *= -1;
+    } else if (object === 'wall' && ballPosition[gameConfiguration.IndexOfYCoordinate] < 0) {
+        ballYMovement *= -1;
+    } else { // if (object === 'wall') {
+        ballXMovement *= -1;
     }
 }
 
@@ -290,13 +295,13 @@ function checkForCollisions() {
             score++;
             displayScore();
             checkIfPlayerWins(allBlocks);
-            changeDirection();
+            changeDirection(object = 'block');
             increaseBallSpeed();
         }
     }
 
-    if (hitWall()) changeDirection();
-    if (hitPlayer()) changeDirection(randomAngle = true);
+    if (hitWall()) changeDirection(object = 'wall');
+    if (hitPlayer()) changeDirection(object = 'player', randomAngle = true);
     checkIfPlayerLooses();
 }
 
@@ -403,13 +408,19 @@ function displayMessage(text) {
 }
 
 
+function playAudio(file) {
+    if (sound === true) {
+        const audio = new Audio(`sounds/${file}.mp3`);
+        audio.play();
+    }
+}
+
+
 function toggleVolumeButton() {
     if (sound === true) {
-        console.log('Turn sound off...');
         soundButtonNode.innerHTML = '<img src="images/sound_on.png" class="center" height="30px">';
         sound = false;
     } else {
-        console.log('Turn sound on...');
         soundButtonNode.innerHTML = '<img src="images/sound_off.png" class="center" height="30px">';
         sound = true;
     }
