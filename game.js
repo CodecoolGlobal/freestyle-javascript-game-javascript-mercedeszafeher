@@ -115,7 +115,7 @@ function resetGame() {
     initGame();
 }
 
-
+// perfect change !!!
 // set or reset values of the game
 function setDefaultValues() {
     playerPosition = [...gameConfiguration.playerPosition];
@@ -244,7 +244,7 @@ function movePlayer(event) {
     }
 }
 
-
+// nice simpler approach gj 
 // increase the ball speed at a certain score
 function increaseBallSpeed() {
     if (score % 5 === 0 && ballSpeed > 5) {
@@ -260,7 +260,7 @@ function changeIntervalDelay(intervalId) {
     return setInterval(moveBall, ballSpeed);
 }
 
-
+// great refactor here 
 // change the direction of the ball
 function changeDirection(object) {
     playAudio('click');
@@ -316,7 +316,7 @@ function checkForCollisions() {
     checkIfPlayerLooses();
 }
 
-
+// thats what i wanted to have really great refactor here Nice JOB ;) 
 // check if the ball hits a block
 function hitBlock(index) {
     let ballXPosition = ballPosition[gameConfiguration.IndexOfXCoordinate] + gameConfiguration.ballRadius;
@@ -442,3 +442,7 @@ function toggleVolumeButton() {
 
 initPage();
 initGame(pauseOnly = false);
+
+
+
+// iam really happy to have students like you ;) 
